@@ -1,6 +1,6 @@
 # Tucil3 - 15Puzzle
 
-## Solving 15 Puzzles Problem With Branch and Bound Algorithm
+## Solving 15 Puzzle Problem With Branch and Bound Algorithm
 
 Adelline Kania Setiyawan / K03 / 13520084
 
