@@ -20,9 +20,6 @@ class Tree:
                     self.j = j
                     return
 
-    def isRoot(self):
-        return self.parent == None
-
     # Method untuk mendapatkan semua kemungkinan child berdasarkan parentnya    
     def getChild(self, count):
         # Apabila tree merupakan root

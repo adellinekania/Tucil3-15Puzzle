@@ -1,5 +1,14 @@
 from colorama import Fore
 
+# Kelas yang menyimpan simpul-simpul yang merupakan solusi dalam bentuk
+# struktur data pohon
+class TreeSolution:
+    def __init__(self, data, parent, child, direction):
+        self.data = data
+        self.parent = parent
+        self.child = child
+        self.direction = direction
+
 # Fungsi untuk menentukan nilai Kurang dari suatu 15 puzzle untuk
 # menentukan apakah 15 puzzle tersebut dapat diselesaikan atau tidak
 def findKurang(data):
@@ -15,13 +24,6 @@ def findKurang(data):
                 sumKurang += 1
     return sumKurang
 
-def markSolution(isSolution, tree):
-    # print("AMAN GA")
-    # printTreeData(tree.data)
-    if tree.parent != None :
-        tree.isSolution = isSolution
-        markSolution(isSolution, tree.parent)
-
 # Menentukan nilai fungsi g dari suatu matrix 15 puzzle
 def findGFunction(data):
     count = 1
@@ -33,73 +35,74 @@ def findGFunction(data):
             count += 1
     return g
 
+# Membuat pohon solusi dari node simpul yang merupakan solusi
+def createTreeSolution(tree, treeSolution):
+    if tree.parent != None:
+        parentTree = tree.parent
+        parentTreeSolution = TreeSolution(parentTree.data, None, treeSolution, parentTree.direction)
+        createTreeSolution(parentTree, parentTreeSolution)
+    else:
+        printTreeSolution(treeSolution)
+
+# Menampilkan data dari sebuah tree
+def printTreeSolution(tree):
+    if (tree != None and tree.child != None):
+        tree = tree.child
+        print(f"{Fore.LIGHTCYAN_EX}Pergeseran tile kosong: {Fore.LIGHTYELLOW_EX}{tree.direction}{Fore.WHITE}")
+        printTreeData(tree.data)
+        print("\n")
+        printTreeSolution(tree)
+
+# Menampilkan data 
 def printTreeData(data):
     for x in data:
         print(x)
 
-# Menampilkan data dari sebuah tree
-def printTreeSolution(tree):
-    if (tree.parent != None):
-        print(f"{Fore.LIGHTCYAN_EX}Pergeseran tile kosong: {Fore.LIGHTYELLOW_EX}{tree.direction}{Fore.WHITE}")
-        printTreeData(tree.data)
-        print("\n")
 
-    isFound = False
-    i = 0
-    if len(tree.child) > 0:
-        while i < len(tree.child) and not isFound:
-            if tree.child[i].isSolution:
-                isFound = True
-                child = tree.child[i]
-            else:
-                i += 1
-        printTreeSolution(child)
+# Fungsi untuk menentukan solusi dari 15 Puzzle
+def solve15Puzzle(queueTree):
+    # Variabel untuk menghitung urutan matriks
+    # dan menandakan pencarian solusi ditemukan
+    count = 0
+    isSolved = False
 
+    # Dictionary untuk menyimpan matriks/data yang sudah pernah dicoba
+    # agar tidak dicoba lagi
+    visitedData = dict()
 
+    while not isSolved and not queueTree.empty():
+        isUnique = False
 
-# Fungsi rekrusif untuk menentukan solusi dari 15 Puzzle
-def solve15Puzzle(currentTree, rootTree, queueTree, solutionTree, count):
-    # Menentukan semua kemungkinan child dari currenTree
-    currentTree.getChild(count)
+        # Mencari simpul dengan cost minimum dari queue
+        while not isUnique and not queueTree.empty():
+            minTree = queueTree.get()[2]
 
-    # Menentukan nilai tree dengan cost minimum yang masih hidup
-    # pada child dan queue
-    minGTree = currentTree.child[0].countC
-    minTree = currentTree.child[0]
-    isOnQueue = False
-    indexOnQueue = 0
+            # Apabila ternyata matriks/data simpul sudah pernah ditelusuri,
+            # akan mencari lagi matriks yang belum ditelusuri
+            if visitedData.get(str(minTree.data)) == None:
+                visitedData[str(minTree.data)] = 1
+                isUnique = True
+        
+        # Apabila queueTree kosong, dan tidak ditemukan minTree
+        if not isUnique:
+            print("Solusi tidak bisa ditemukan")
+            return
+
+        # Apabila simpul merupakan solusi
+        if(minTree.countC - minTree.count == 0):
+            isSolved = True
+            treeSolution = TreeSolution(minTree.data, None, None, minTree.direction)
+            createTreeSolution(minTree, treeSolution)
+            return
+
+        # Jika simpul bukan merupakan solusi, akan mencari semua kemungkinan
+        # anak dari simpul tersebut dan memasukkanya ke dalam queue
+        minTree.getChild(minTree.count + 1)
+
+        for child in minTree.child:
+            count += 1
+            queueTree.put((child.countC, count, child))
     
-    for tree in currentTree.child:
-        if tree.countC < minGTree:
-            minTree = tree
-            minGTree = tree.countC
-
-    while not isOnQueue and indexOnQueue < len(queueTree):
-        if queueTree[indexOnQueue].countC < minGTree:
-            minTree = queueTree[indexOnQueue]
-            minGTree = queueTree[indexOnQueue].countC
-            isOnQueue = True
-        else:
-            indexOnQueue += 1
-
-    # Menghapus tree yang merupakan tree dengan cost minimum apabila
-    # tree tersebut terdapat pada queue
-    if isOnQueue:
-        del queueTree[indexOnQueue]
-        markSolution(False, currentTree)
-        markSolution(True, minTree)
-    else:
-        minTree.isSolution = True
-
-    # Menambahkan child dari currentTree yang bukan tree dengan
-    # cost minimum pada queueTree
-    for tree in currentTree.child:
-        if tree != minTree:
-            queueTree.append(tree)
-
-    # Apabila belum mencapai solusi, akan memanggil fungsi
-    # solve15Puzzle secara rekrusif
-    if (minTree.countC - minTree.count > 0):
-        solve15Puzzle(minTree, rootTree, queueTree, solutionTree, count+1)
-    else:
-        printTreeSolution(rootTree)
+    if not isSolved:
+        print("Solusi tidak bisa ditemukan")
+        return
