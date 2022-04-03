@@ -3,6 +3,7 @@ from branchBoundPuzzle import findKurang, printTreeData, solve15Puzzle
 from treePuzzle import Tree
 from colorama import Fore
 from queue import PriorityQueue
+import time
 
 print(f'''{Fore.LIGHTCYAN_EX}
   █████████████████████████████████████████████████████████████
@@ -57,7 +58,11 @@ if (findKurang(data) % 2 == 0):
     queueTree.put((rootTree.countC, 0, rootTree))
 
     # Memanggil prosedur solve15Puzzle untuk menyelesaikan 15 Puzzle
+    startTime = time.time()
     solve15Puzzle(queueTree)
+    finishTime = time.time()
+    print("Total Waktu Eksekusi: {:.5f} sekon".format(finishTime - startTime))
+    print()
 
 # Apabila nilai kurang berjumlah ganjil, maka akan ditampilkan pesan bahwa 15 Puzzle tidak bisa diselesaikan
 else:

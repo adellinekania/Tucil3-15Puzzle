@@ -1,4 +1,5 @@
 from colorama import Fore
+import time
 
 # Kelas yang menyimpan simpul-simpul yang merupakan solusi dalam bentuk
 # struktur data pohon
@@ -93,6 +94,7 @@ def solve15Puzzle(queueTree):
             isSolved = True
             treeSolution = TreeSolution(minTree.data, None, None, minTree.direction)
             createTreeSolution(minTree, treeSolution)
+            print("Jumlah Node yang Dibangkitkan: " + str(count))
             return
 
         # Jika simpul bukan merupakan solusi, akan mencari semua kemungkinan
@@ -106,3 +108,4 @@ def solve15Puzzle(queueTree):
     if not isSolved:
         print("Solusi tidak bisa ditemukan")
         return
+        
